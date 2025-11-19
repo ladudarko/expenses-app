@@ -7,9 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: expenses-tracker-backend  # Set this in GitHub repo settings > Secrets > Actions
+  AZURE_WEBAPP_NAME: expenses-tracker-backend  # CHANGE THIS to your App Service name
   NODE_VERSION: '18.x'
-  # You can also set AZURE_WEBAPP_NAME in GitHub repo Settings > Secrets and variables > Actions > Repository secrets
 
 jobs:
   build:
