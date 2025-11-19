@@ -73,7 +73,7 @@ AZURE_WEBAPP_NAME: expenses-tracker-backend  # Change to your App Service name
 
 ### 5. Configure Startup Command
 
-1. Go to Azure Portal → Your App Service → **Configuration** → **General settings**
+1. Go to Azure Portal → Your App Service → **Configuration (preview)** → **Stack settings** tab
 2. Set **Startup Command**: `npm run start`
 3. Click **Save**
 
