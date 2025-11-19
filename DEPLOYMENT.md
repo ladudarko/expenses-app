@@ -1,264 +1,120 @@
-# Deployment Guide
-
-This guide covers deploying the BigSix AutoSales Expense Tracker to production environments.
+# Azure Deployment Guide
 
 ## Prerequisites
 
-- Node.js v18+ installed
-- PostgreSQL database (managed or self-hosted)
-- Domain name (optional)
-- SSL certificate (for HTTPS)
+1. Azure account with active subscription
+2. GitHub repository: `https://github.com/ladudarko/expenses-app`
+3. Azure App Service created for backend
 
-## Deployment Options
+## GitHub Actions Setup
 
-### Option 1: Heroku (Easiest)
+### 1. Configure Azure App Service Secret
 
-#### Frontend Deployment
+1. Go to your GitHub repository: `https://github.com/ladudarko/expenses-app`
+2. Navigate to **Settings** > **Secrets and variables** > **Actions**
+3. Click **New repository secret**
+4. Add the following secrets:
 
-1. Install Heroku CLI: https://devcenter.heroku.com/articles/heroku-cli
+   | Secret Name | Value | How to Get |
+   |------------|-------|------------|
+   | `AZURE_WEBAPP_PUBLISH_PROFILE` | Download from Azure Portal | See below |
+   | `AZURE_WEBAPP_NAME` | Your App Service name | From Azure Portal |
 
-2. Create new Heroku app:
-```bash
-cd expenses-app
-heroku create your-app-name-frontend
-```
+### 2. Get Publish Profile from Azure
 
-3. Install buildpacks:
-```bash
-heroku buildpacks:add heroku/nodejs
-```
+1. Go to [Azure Portal](https://portal.azure.com)
+2. Navigate to your App Service
+3. Click **Get publish profile** button (downloads an `.PublishSettings` file)
+4. Open the file and copy its contents
+5. Paste into the `AZURE_WEBAPP_PUBLISH_PROFILE` secret in GitHub
 
-4. Deploy:
-```bash
-git push heroku main
-```
+### 3. Set App Service Name
 
-#### Backend Deployment
+1. In GitHub repo settings, add a repository secret:
+   - Name: `AZURE_WEBAPP_NAME`
+   - Value: Your App Service name (e.g., `bigsix-expenses-api`)
 
-1. Create separate Heroku app:
-```bash
-cd server
-heroku create your-app-name-backend
-```
+   **OR** edit `.github/workflows/azure-webapps-deploy.yml` and replace:
+   ```yaml
+   AZURE_WEBAPP_NAME: your-app-service-name
+   ```
+   with your actual App Service name.
 
-2. Add PostgreSQL addon:
-```bash
-heroku addons:create heroku-postgresql:hobby-dev
-```
+## App Service Configuration
 
-3. Set environment variables:
-```bash
-heroku config:set NODE_ENV=production
-heroku config:set JWT_SECRET=$(openssl rand -base64 32)
-heroku config:set FRONTEND_URL=https://your-app-name-frontend.herokuapp.com
-```
+### Environment Variables
 
-4. Run migrations:
-```bash
-heroku pg:psql < src/config/schema.sql
-```
+In Azure Portal > App Service > Configuration > Application settings, add:
 
-5. Deploy:
-```bash
-git push heroku main
-```
+| Name | Value | Example |
+|------|-------|---------|
+| `PORT` | `3000` | `3000` |
+| `NODE_ENV` | `production` | `production` |
+| `JWT_SECRET` | Generate strong secret | `your-super-secret-jwt-key-change-in-production` |
+| `FRONTEND_URL` | Your frontend URL | `https://your-frontend.azurewebsites.net` |
 
-6. Update frontend API URL:
-```bash
-# In frontend Heroku app
-heroku config:set VITE_API_URL=https://your-app-name-backend.herokuapp.com/api
-```
+**Note:** For production, store `JWT_SECRET` in Azure Key Vault for better security.
 
-### Option 2: Railway
+### Startup Command
 
-1. Sign up at https://railway.app
+In Azure Portal > App Service > Configuration > General settings, set:
 
-2. Create new project
+**Startup Command:** `npm run start`
 
-3. Deploy PostgreSQL:
-   - Click "New" → "Database" → "PostgreSQL"
-   - Note connection string
+This runs `node dist/index.js` as defined in `server/package.json`.
 
-4. Deploy backend:
-   - Click "New" → "GitHub Repo"
-   - Select repository
-   - Set root directory to `server`
-   - Add environment variables in dashboard
-   - Run schema: `railway run psql $DATABASE_URL < src/config/schema.sql`
+## Deployment Process
 
-5. Deploy frontend:
-   - Create another service from same repo
-   - Set root directory to project root
-   - Set environment variable: `VITE_API_URL=https://your-backend.railway.app/api`
+Once configured:
 
-### Option 3: AWS (Production)
+1. **Push to GitHub:**
+   ```bash
+   git add .
+   git commit -m "Configure Azure deployment"
+   git push origin main
+   ```
 
-#### 1. Database Setup (RDS)
+2. **Monitor Deployment:**
+   - Go to GitHub repository > **Actions** tab
+   - Watch the workflow run
+   - Check for any errors
 
-```bash
-# Create RDS PostgreSQL instance
-aws rds create-db-instance \
-  --db-instance-identifier bigsix-db \
-  --db-instance-class db.t3.micro \
-  --engine postgres \
-  --master-username postgres \
-  --master-user-password YourSecurePassword \
-  --allocated-storage 20
-```
+3. **Verify Deployment:**
+   - Visit: `https://<your-app-service-name>.azurewebsites.net/health`
+   - Should return: `{"status":"ok","message":"BigSix AutoSales API is running"}`
 
-#### 2. Backend Deployment (EC2 or ECS)
+## Troubleshooting
 
-**EC2:**
-```bash
-# Launch EC2 instance
-# SSH into instance
-sudo yum update -y
-sudo yum install nodejs npm postgresql -y
+### Build Fails: "build folder not found"
 
-# Clone repository
-git clone your-repo-url
-cd expenses-app/server
+The workflow creates a `build` folder with:
+- `dist/` - Compiled JavaScript
+- `package.json` - Server package file
+- `node_modules/` - Production dependencies
 
-# Install dependencies
-npm install
+If this error persists, check:
+- GitHub Actions logs for build errors
+- Ensure `npm run build` completes successfully in the `server/` directory
 
-# Set up environment
-cp .env.example .env
-nano .env  # Edit with RDS connection details
+### App Service Doesn't Start
 
-# Run database migrations
-psql -h your-rds-endpoint -U postgres -d bigsix_expenses -f src/config/schema.sql
+1. Check **Log stream** in Azure Portal
+2. Verify startup command: `npm run start`
+3. Check environment variables are set correctly
+4. Verify `PORT` environment variable (Azure injects this automatically)
 
-# Install PM2
-sudo npm install -g pm2
+### Database Issues
 
-# Start application
-pm2 start dist/index.js --name bigsix-api
-pm2 save
-pm2 startup
-```
+Currently using JSON file (`server/data/db.json`). For production:
 
-**ECS (Container):**
-```bash
-# Build Docker image
-docker build -t bigsix-backend .
+1. **Option 1:** Mount Azure Files share (survives restarts)
+2. **Option 2:** Migrate to Azure Database for PostgreSQL (recommended)
 
-# Push to ECR
-aws ecr create-repository --repository-name bigsix-backend
-docker tag bigsix-backend:latest your-account.dkr.ecr.region.amazonaws.com/bigsix-backend:latest
-docker push your-account.dkr.ecr.region.amazonaws.com/bigsix-backend:latest
+See [DATABASE.md](./DATABASE.md) for migration guide.
 
-# Create ECS task definition
-# Deploy via AWS Console or CLI
-```
+## Next Steps
 
-#### 3. Frontend Deployment (S3 + CloudFront)
-
-```bash
-# Build frontend
-npm run build
-
-# Create S3 bucket
-aws s3 mb s3://bigsix-expenses-frontend
-
-# Upload build
-aws s3 sync dist/ s3://bigsix-expenses-frontend/
-
-# Enable static website hosting
-aws s3 website s3://bigsix-expenses-frontend/ --index-document index.html
-
-# Create CloudFront distribution
-# Point to S3 bucket origin
-```
-
-## Environment Variables
-
-### Backend (.env)
-
-```env
-NODE_ENV=production
-PORT=3000
-
-DB_HOST=your-database-host
-DB_PORT=5432
-DB_NAME=bigsix_expenses
-DB_USER=postgres
-DB_PASSWORD=your-secure-password
-
-JWT_SECRET=your-super-secure-random-jwt-secret-key
-FRONTEND_URL=https://your-frontend-domain.com
-```
-
-### Frontend (.env)
-
-```env
-VITE_API_URL=https://your-backend-domain.com/api
-```
-
-## Security Checklist
-
-- [ ] Strong JWT_SECRET (minimum 32 characters, random)
-- [ ] HTTPS enabled (SSL certificate)
-- [ ] Database password is strong
-- [ ] Environment variables not committed to git
-- [ ] CORS configured for production domain only
-- [ ] Rate limiting implemented
-- [ ] Regular database backups configured
-- [ ] Monitoring and logging set up
-- [ ] Firewall rules configured
-- [ ] Database connection uses SSL
-
-## Post-Deployment
-
-1. **Test authentication**: Register and login
-2. **Test CRUD operations**: Add, edit, delete expenses
-3. **Test export**: Download CSV
-4. **Check database**: Verify data persistence
-5. **Monitor logs**: Check for errors
-6. **Set up backups**: Configure automated database backups
-
-## Monitoring
-
-Recommended tools:
-- **Application**: PM2 (for Node.js apps)
-- **Database**: AWS RDS monitoring or custom queries
-- **Errors**: Sentry
-- **Logs**: CloudWatch, Loggly, or Papertrail
-- **Uptime**: UptimeRobot or Pingdom
-
-## Scaling
-
-For high traffic:
-1. **Database**: Enable connection pooling (already configured)
-2. **Backend**: Deploy multiple instances behind load balancer
-3. **Caching**: Add Redis for frequently accessed data
-4. **CDN**: Use CloudFront for static assets
-5. **Monitoring**: Set up alerts for performance thresholds
-
-## Maintenance
-
-Regular tasks:
-- Update dependencies monthly
-- Review security patches
-- Monitor database size and performance
-- Review logs for errors
-- Back up database weekly
-- Update SSL certificates
-
-## Rollback Plan
-
-If issues occur:
-1. Identify problematic deployment
-2. Revert to previous version
-3. Check logs for root cause
-4. Test fix in staging
-5. Redeploy to production
-
-## Support
-
-For production issues:
-- Check application logs
-- Check database logs
-- Review error tracking (Sentry, etc.)
-- Check uptime monitoring
-
+1. Deploy frontend (Azure Static Web Apps recommended)
+2. Set up Azure Database for PostgreSQL
+3. Configure custom domain
+4. Enable Application Insights for monitoring
