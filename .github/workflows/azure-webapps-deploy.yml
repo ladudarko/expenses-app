@@ -40,24 +40,38 @@ jobs:
         cp -r server/dist build/
         # Copy package.json (start script expects dist/index.js)
         cp server/package.json build/
+        # Create empty data directory for JSON database
+        mkdir -p build/data
+        # Initialize empty database if data directory doesn't exist in source
+        if [ -d "server/data" ]; then
+          cp -r server/data/* build/data/ 2>/dev/null || true
+        else
+          echo '{"users": [], "expenses": []}' > build/data/db.json
+        fi
         # Install production dependencies only
         cd build
         npm ci --production --ignore-scripts
-        # Copy data directory if it exists (for local testing)
         cd ..
-        if [ -d "server/data" ]; then
-          mkdir -p build/data
-          cp -r server/data/* build/data/
-        fi
 
     - name: Verify build folder structure
       run: |
         echo "Build folder structure:"
         ls -la build/
-        echo "Dist folder:"
+        echo ""
+        echo "Dist folder contents:"
         ls -la build/dist/ || echo "No dist folder"
+        echo ""
         echo "Package.json exists:"
         test -f build/package.json && echo "YES" || echo "NO"
+        echo ""
+        echo "Data directory:"
+        ls -la build/data/ 2>/dev/null || echo "No data directory"
+        echo ""
+        echo "Node modules:"
+        test -d build/node_modules && echo "YES (exists)" || echo "NO (missing!)"
+        echo ""
+        echo "Verifying dist/index.js exists:"
+        test -f build/dist/index.js && echo "✅ dist/index.js found" || echo "❌ dist/index.js MISSING"
 
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v4
