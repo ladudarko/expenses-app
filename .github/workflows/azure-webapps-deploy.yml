@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: your-app-service-name   # Set this in GitHub repo settings > Secrets > Actions
+  AZURE_WEBAPP_NAME: expenses-tracker-backend  # Set this in GitHub repo settings > Secrets > Actions
   NODE_VERSION: '18.x'
   # You can also set AZURE_WEBAPP_NAME in GitHub repo Settings > Secrets and variables > Actions > Repository secrets
 
@@ -51,11 +51,21 @@ jobs:
           cp -r server/data/* build/data/
         fi
 
+    - name: Verify build folder structure
+      run: |
+        echo "Build folder structure:"
+        ls -la build/
+        echo "Dist folder:"
+        ls -la build/dist/ || echo "No dist folder"
+        echo "Package.json exists:"
+        test -f build/package.json && echo "YES" || echo "NO"
+
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v3
       with:
         name: node-app
         path: build
+        retention-days: 1
 
   deploy:
     permissions:
@@ -71,6 +81,30 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: node-app
+        path: build
+
+    - name: Verify build folder exists and show structure
+      run: |
+        echo "Current directory: $(pwd)"
+        echo "Contents:"
+        ls -la
+        echo "Build folder check:"
+        if [ -d "build" ]; then
+          echo "✅ Build folder found!"
+          echo "Build folder contents:"
+          ls -la build/
+          echo "Dist folder:"
+          ls -la build/dist/ || echo "No dist folder in build/"
+          echo "Package.json:"
+          test -f build/package.json && cat build/package.json | head -10 || echo "No package.json"
+        else
+          echo "❌ ERROR: Build folder not found after artifact download!"
+          echo "Looking for build folder:"
+          find . -type d -name "build" 2>/dev/null || echo "No build folder found"
+          echo "All directories:"
+          find . -type d -maxdepth 2 2>/dev/null
+          exit 1
+        fi
 
     - name: 'Deploy to Azure Web App'
       id: deploy-to-webapp
@@ -78,5 +112,5 @@ jobs:
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: .
+        package: ./build
 
