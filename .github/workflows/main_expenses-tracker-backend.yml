@@ -38,8 +38,9 @@ jobs:
         mkdir -p build
         # Copy the entire dist folder to maintain structure
         cp -r server/dist build/
-        # Copy package.json (start script expects dist/index.js)
+        # Copy package.json and package-lock.json (required for npm ci)
         cp server/package.json build/
+        cp server/package-lock.json build/
         # Create empty data directory for JSON database
         mkdir -p build/data
         # Initialize empty database if data directory doesn't exist in source
@@ -50,7 +51,7 @@ jobs:
         fi
         # Install production dependencies only
         cd build
-        npm ci --production --ignore-scripts
+        npm ci --omit=dev --ignore-scripts
         cd ..
 
     - name: Verify build folder structure
