@@ -50,8 +50,9 @@ jobs:
           echo '{"users": [], "expenses": []}' > build/data/db.json
         fi
         # Install production dependencies only
+        # Note: --ignore-scripts removed because bcrypt needs to compile native bindings
         cd build
-        npm ci --omit=dev --ignore-scripts
+        npm ci --omit=dev
         cd ..
 
     - name: Verify build folder structure
