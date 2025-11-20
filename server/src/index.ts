@@ -14,9 +14,28 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
+// Allow multiple frontend origins (for custom domain support)
+const allowedOrigins = FRONTEND_URL.includes(',') 
+  ? FRONTEND_URL.split(',').map(url => url.trim())
+  : [FRONTEND_URL];
+
+// Also include common Azure Static Web Apps origins as fallback
+if (!FRONTEND_URL.includes('localhost')) {
+  allowedOrigins.push('https://icy-mud-054593f0f.3.azurestaticapps.net');
+}
+
 // Middleware
 app.use(cors({
-  origin: FRONTEND_URL,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());
