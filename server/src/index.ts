@@ -22,6 +22,19 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Root route - API info
+app.get('/', (req: Request, res: Response) => {
+  res.json({ 
+    message: 'BigSix AutoSales Expense Tracker API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      auth: '/api/auth',
+      expenses: '/api/expenses'
+    }
+  });
+});
+
 // Health check
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'BigSix AutoSales API is running' });
