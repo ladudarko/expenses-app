@@ -151,7 +151,8 @@ export const pool = {
             results = results.filter(row => {
               let paramIndex = 0;
               return conditions.every(condition => {
-                const colMatch = condition.match(/(\w+)\s*=\s*\?/);
+                // Handle both PostgreSQL ($1) and SQLite (?) parameter styles
+                const colMatch = condition.match(/(\w+)\s*=\s*(\?|\$\d+)/);
                 if (colMatch && paramIndex < params.length) {
                   const col = colMatch[1];
                   const matches = row[col] === params[paramIndex];
