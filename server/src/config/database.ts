@@ -79,6 +79,7 @@ export const pool = {
               username: values[0] || '',
               password_hash: values[1] || '',
               business_name: values[2] || 'BigSix AutoSales LLC',
+              is_admin: values[3] || false,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
             };

@@ -17,6 +17,7 @@ export interface User {
   username: string;
   password_hash?: string;
   business_name?: string;
+  is_admin?: boolean;
   created_at?: string;
   updated_at?: string;
 }

@@ -62,6 +62,7 @@ app.get('/health', (req: Request, res: Response) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/admin', (await import('./routes/admin.js')).default);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: Function) => {

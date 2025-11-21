@@ -30,8 +30,8 @@ router.post('/register', async (req: Request, res: Response) => {
 
     // Create user
     const result = await pool.query(
-      'INSERT INTO users (username, password_hash, business_name) VALUES ($1, $2, $3) RETURNING id, username, business_name',
-      [normalizedUsername, password_hash, business_name || 'BigSix AutoSales LLC']
+      'INSERT INTO users (username, password_hash, business_name, is_admin) VALUES ($1, $2, $3, $4) RETURNING id, username, business_name, is_admin',
+      [normalizedUsername, password_hash, business_name || 'BigSix AutoSales LLC', false]
     );
 
     const user: User = result.rows[0];
@@ -84,14 +84,15 @@ router.post('/login', async (req: Request, res: Response) => {
     // Generate JWT token
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
 
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        business_name: user.business_name
-      }
-    });
+      res.json({
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          business_name: user.business_name,
+          is_admin: user.is_admin
+        }
+      });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -110,10 +111,10 @@ router.get('/me', async (req: Request, res: Response) => {
 
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
     
-    const result = await pool.query(
-      'SELECT id, username, business_name, created_at FROM users WHERE id = $1',
-      [decoded.userId]
-    );
+      const result = await pool.query(
+        'SELECT id, username, business_name, is_admin, created_at FROM users WHERE id = $1',
+        [decoded.userId]
+      );
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
