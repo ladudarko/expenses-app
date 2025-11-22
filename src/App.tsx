@@ -8,6 +8,7 @@ import ExpenseFilters, { FilterOptions } from './components/ExpenseFilters';
 import SummaryCard from './components/SummaryCard';
 import ProjectSummary from './components/ProjectSummary';
 import Login from './components/Login';
+import AdminDashboard from './components/AdminDashboard';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -153,6 +154,11 @@ function App() {
     return <Login onLogin={handleLogin} />;
   }
 
+  // Show admin dashboard if user is admin
+  if (user?.is_admin) {
+    return <AdminDashboard user={user} onLogout={handleLogout} />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-8">
@@ -162,15 +168,22 @@ function App() {
             {user?.business_name || 'BigSix AutoSales LLC'}
           </h1>
           <p className="text-xl text-gray-600">Business Expense Tracker</p>
-          <div className="mt-4">
-            <span className="text-sm text-gray-600">{user?.username}</span>
-            <button
-              onClick={handleLogout}
-              className="ml-4 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-semibold rounded-lg transition duration-200"
-            >
-              Logout
-            </button>
-          </div>
+            <div className="mt-4">
+              <span className="text-sm text-gray-600">
+                {user?.username}
+                {user?.is_admin && (
+                  <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded-full">
+                    Admin
+                  </span>
+                )}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="ml-4 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-semibold rounded-lg transition duration-200"
+              >
+                Logout
+              </button>
+            </div>
         </div>
 
         {/* Filters */}

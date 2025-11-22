@@ -9,6 +9,16 @@ export interface Expense {
   project_name?: string;
 }
 
+export interface User {
+  id?: number;
+  username: string;
+  password_hash?: string;
+  business_name?: string;
+  is_admin?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export const EXPENSE_CATEGORIES = [
   'Vehicle Purchase',
   'Vehicle Maintenance',
@@ -26,4 +36,3 @@ export const EXPENSE_CATEGORIES = [
 ] as const;
 
 export type ExpenseCategory = typeof EXPENSE_CATEGORIES[number];
-
