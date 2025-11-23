@@ -44,8 +44,8 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
         adminApi.getBusinessSummary(),
         adminApi.getExpensesByCategory()
       ]);
-      setBusinessSummary(businessData);
-      setCategorySummary(categoryData);
+      setBusinessSummary(businessData as BusinessSummary[]);
+      setCategorySummary(categoryData as CategorySummary[]);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -57,7 +57,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
     try {
       setLoading(true);
       const users = await adminApi.getAllUsers();
-      setAllUsers(users);
+      setAllUsers(users as User[]);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -70,7 +70,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
       setLoading(true);
       const filters = selectedBusiness ? { business_name: selectedBusiness } : undefined;
       const expenses = await adminApi.getAllExpenses(filters);
-      setAllExpenses(expenses);
+      setAllExpenses(expenses as any[]);
     } catch (err: any) {
       setError(err.message);
     } finally {
