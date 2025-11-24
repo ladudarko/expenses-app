@@ -4,10 +4,28 @@ export interface Expense {
   category: string;
   description: string;
   amount: number;
+  currency?: string;
   vendor?: string;
   expense_type?: 'Personal' | 'Business';
   project_name?: string;
 }
+
+export const CURRENCIES = [
+  { code: 'USD', symbol: '$', name: 'US Dollar' },
+  { code: 'GBP', symbol: '£', name: 'British Pound' },
+  { code: 'EUR', symbol: '€', name: 'Euro' },
+  { code: 'GHC', symbol: '₵', name: 'Ghanaian Cedi' },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
+  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
+  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
+  { code: 'CHF', symbol: 'CHF', name: 'Swiss Franc' },
+  { code: 'CNY', symbol: '¥', name: 'Chinese Yuan' },
+  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
+  { code: 'NGN', symbol: '₦', name: 'Nigerian Naira' },
+  { code: 'ZAR', symbol: 'R', name: 'South African Rand' },
+] as const;
+
+export const DEFAULT_CURRENCY = 'USD';
 
 export interface User {
   id?: number;

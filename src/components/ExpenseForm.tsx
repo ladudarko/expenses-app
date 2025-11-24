@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Expense, EXPENSE_CATEGORIES } from '../types';
+import { Expense, EXPENSE_CATEGORIES, CURRENCIES, DEFAULT_CURRENCY } from '../types';
 
 interface ExpenseFormProps {
   onSubmit: (expense: Expense) => Promise<void>;
@@ -12,6 +12,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
   const [description, setDescription] = useState('');
   const [vendor, setVendor] = useState('');
   const [amount, setAmount] = useState('');
+  const [currency, setCurrency] = useState<string>(DEFAULT_CURRENCY);
   const [expenseType, setExpenseType] = useState<'Personal' | 'Business'>('Business');
   const [projectName, setProjectName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,6 +52,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
         description,
         vendor: vendor.trim() || undefined,
         amount: parseFloat(amount),
+        currency: currency || DEFAULT_CURRENCY,
         expense_type: expenseType,
         project_name: projectName.trim() || undefined,
       };
@@ -61,9 +63,10 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
       setCategory('');
       setDescription('');
       setVendor('');
-      setAmount('');
-      setExpenseType('Business');
-      setProjectName('');
+        setAmount('');
+        setCurrency(DEFAULT_CURRENCY);
+        setExpenseType('Business');
+        setProjectName('');
     } catch (error) {
       // Error is handled in App.tsx, just don't reset the form
       console.error('Error submitting expense:', error);
@@ -170,19 +173,37 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
 
         <div>
           <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
-            Amount ($) *
+            Amount *
           </label>
-          <input
-            type="number"
-            id="amount"
-            step="0.01"
-            min="0"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="0.00"
-            required
-          />
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <input
+                type="number"
+                id="amount"
+                step="0.01"
+                min="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="0.00"
+                required
+              />
+            </div>
+            <div className="w-32">
+              <select
+                id="currency"
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                {CURRENCIES.map((curr) => (
+                  <option key={curr.code} value={curr.code}>
+                    {curr.code} ({curr.symbol})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
 
         <div>

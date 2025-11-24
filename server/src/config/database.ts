@@ -108,8 +108,9 @@ export const pool = {
               description: values[3] || '',
               vendor: values[4] || null,
               amount: values[5] || 0,
-              expense_type: values[6] || 'Business',
-              project_name: values[7] || null,
+              currency: values[6] || 'USD',
+              expense_type: values[7] || 'Business',
+              project_name: values[8] || null,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
             };

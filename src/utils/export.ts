@@ -2,7 +2,7 @@ import { Expense } from '../types';
 import { format } from 'date-fns';
 
 export const generateCSV = (expenses: Expense[]): string => {
-  const headers = ['Date', 'Type', 'Category', 'Description', 'Vendor', 'Project', 'Amount'];
+  const headers = ['Date', 'Type', 'Category', 'Description', 'Vendor', 'Project', 'Currency', 'Amount'];
   const rows = expenses.map(expense => [
     format(new Date(expense.date), 'MM/dd/yyyy'),
     expense.expense_type || 'Business',
@@ -10,6 +10,7 @@ export const generateCSV = (expenses: Expense[]): string => {
     expense.description,
     expense.vendor || '',
     expense.project_name || '',
+    expense.currency || 'USD',
     expense.amount.toFixed(2)
   ]);
 

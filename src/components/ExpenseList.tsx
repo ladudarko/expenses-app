@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Expense } from '../types';
 import { format } from 'date-fns';
 import { FilterOptions } from './ExpenseFilters';
+import { formatCurrency, getCurrencyCode } from '../utils/currency';
 
 interface ExpenseListProps {
   expenses: Expense[];
@@ -154,7 +155,15 @@ export default function ExpenseList({ expenses, onDelete, filters }: ExpenseList
     );
   };
 
-  const totalAmount = sortedExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+  // Calculate totals by currency
+  const totalsByCurrency = useMemo(() => {
+    const totals: { [key: string]: number } = {};
+    sortedExpenses.forEach(exp => {
+      const currency = getCurrencyCode(exp.currency);
+      totals[currency] = (totals[currency] || 0) + exp.amount;
+    });
+    return totals;
+  }, [sortedExpenses]);
 
   if (expenses.length === 0) {
     return (
@@ -179,9 +188,13 @@ export default function ExpenseList({ expenses, onDelete, filters }: ExpenseList
           <h2 className="text-2xl font-bold text-gray-800">
             Expenses {filteredExpenses.length !== expenses.length && `(${filteredExpenses.length} of ${expenses.length})`}
           </h2>
-          <span className="text-lg font-semibold text-gray-700">
-            Total: ${totalAmount.toFixed(2)}
-          </span>
+          <div className="flex flex-col items-end">
+            {Object.entries(totalsByCurrency).map(([currency, total]) => (
+              <span key={currency} className="text-lg font-semibold text-gray-700">
+                {currency} Total: {formatCurrency(total, currency)}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
       
@@ -231,6 +244,9 @@ export default function ExpenseList({ expenses, onDelete, filters }: ExpenseList
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                 Project
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Currency
+              </th>
               <th 
                 className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
                 onClick={() => handleSort('amount')}
@@ -278,8 +294,13 @@ export default function ExpenseList({ expenses, onDelete, filters }: ExpenseList
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                   {projectNameValue}
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                  <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                    {getCurrencyCode(expense.currency)}
+                  </span>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  ${expense.amount.toFixed(2)}
+                  {formatCurrency(expense.amount, expense.currency)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button

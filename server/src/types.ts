@@ -6,6 +6,7 @@ export interface Expense {
   description: string;
   vendor?: string;
   amount: number;
+  currency?: string;
   expense_type?: 'Personal' | 'Business';
   project_name?: string;
   created_at?: string;
