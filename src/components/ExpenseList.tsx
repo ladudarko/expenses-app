@@ -3,17 +3,21 @@ import { Expense } from '../types';
 import { format } from 'date-fns';
 import { FilterOptions } from './ExpenseFilters';
 import { formatCurrency, getCurrencyCode } from '../utils/currency';
+import { generateInvoice } from '../utils/invoice';
 
 interface ExpenseListProps {
   expenses: Expense[];
   onDelete: (id: string | number) => void;
   filters: FilterOptions;
+  businessName?: string;
+  address?: string;
+  username?: string;
 }
 
 type SortColumn = 'date' | 'category' | 'description' | 'vendor' | 'amount' | null;
 type SortDirection = 'asc' | 'desc';
 
-export default function ExpenseList({ expenses, onDelete, filters }: ExpenseListProps) {
+export default function ExpenseList({ expenses, onDelete, filters, businessName, address, username }: ExpenseListProps) {
   const [sortColumn, setSortColumn] = useState<SortColumn>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
@@ -61,6 +65,12 @@ export default function ExpenseList({ expenses, onDelete, filters }: ExpenseList
     // Expense type filter
     const expenseTypeValue = expense.expense_type || 'Business';
     if (filters.expenseType && expenseTypeValue !== filters.expenseType) {
+      return false;
+    }
+
+    // Transaction type filter
+    const transactionTypeValue = expense.transaction_type || 'Expense';
+    if (filters.transactionType && transactionTypeValue !== filters.transactionType) {
       return false;
     }
 
@@ -168,7 +178,7 @@ export default function ExpenseList({ expenses, onDelete, filters }: ExpenseList
   if (expenses.length === 0) {
     return (
       <div className="bg-white p-8 rounded-lg shadow-md text-center">
-        <p className="text-gray-500 text-lg">No expenses recorded yet. Add your first expense above!</p>
+        <p className="text-gray-500 text-lg">No transactions recorded yet. Add your first item above!</p>
       </div>
     );
   }
@@ -176,7 +186,7 @@ export default function ExpenseList({ expenses, onDelete, filters }: ExpenseList
   if (filteredExpenses.length === 0) {
     return (
       <div className="bg-white p-8 rounded-lg shadow-md text-center">
-        <p className="text-gray-500 text-lg">No expenses match your filters. Try adjusting your filter criteria.</p>
+        <p className="text-gray-500 text-lg">No transactions match your filters. Try adjusting your filter criteria.</p>
       </div>
     );
   }
@@ -186,7 +196,7 @@ export default function ExpenseList({ expenses, onDelete, filters }: ExpenseList
       <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold text-gray-800">
-            Expenses {filteredExpenses.length !== expenses.length && `(${filteredExpenses.length} of ${expenses.length})`}
+            Transactions {filteredExpenses.length !== expenses.length && `(${filteredExpenses.length} of ${expenses.length})`}
           </h2>
           <div className="flex flex-col items-end">
             {Object.entries(totalsByCurrency).map(([currency, total]) => (
@@ -214,6 +224,9 @@ export default function ExpenseList({ expenses, onDelete, filters }: ExpenseList
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                 Type
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Transaction
+              </th>
               <th 
                 className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
                 onClick={() => handleSort('category')}
@@ -237,7 +250,7 @@ export default function ExpenseList({ expenses, onDelete, filters }: ExpenseList
                 onClick={() => handleSort('vendor')}
               >
                 <div className="flex items-center">
-                  Vendor
+                  Vendor/Customer
                   <SortIcon column="vendor" />
                 </div>
               </th>
@@ -264,6 +277,7 @@ export default function ExpenseList({ expenses, onDelete, filters }: ExpenseList
           <tbody className="bg-white divide-y divide-gray-200">
             {sortedExpenses.map((expense) => {
               const expenseTypeValue = expense.expense_type || 'Business';
+              const transactionTypeValue = expense.transaction_type || 'Expense';
               const projectNameValue = expense.project_name || '-';
 
               return (
@@ -278,6 +292,15 @@ export default function ExpenseList({ expenses, onDelete, filters }: ExpenseList
                       : 'bg-purple-100 text-purple-800'
                   }`}>
                     {expenseTypeValue}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    transactionTypeValue === 'Income' 
+                      ? 'bg-emerald-100 text-emerald-800' 
+                      : 'bg-orange-100 text-orange-800'
+                  }`}>
+                    {transactionTypeValue}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -303,12 +326,23 @@ export default function ExpenseList({ expenses, onDelete, filters }: ExpenseList
                   {formatCurrency(expense.amount, expense.currency)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    onClick={() => expense.id && onDelete(expense.id)}
-                    className="text-red-600 hover:text-red-900 transition duration-200"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex gap-2 justify-end">
+                    {transactionTypeValue === 'Income' && (
+                      <button
+                        onClick={() => generateInvoice(expense, businessName, address, username)}
+                        className="text-blue-600 hover:text-blue-900 transition duration-200 font-semibold"
+                        title="Generate Invoice"
+                      >
+                        📄 Invoice
+                      </button>
+                    )}
+                    <button
+                      onClick={() => expense.id && onDelete(expense.id)}
+                      className="text-red-600 hover:text-red-900 transition duration-200"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             );

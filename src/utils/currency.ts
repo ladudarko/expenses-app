@@ -8,7 +8,12 @@ export const getCurrencySymbol = (currencyCode?: string): string => {
 
 export const formatCurrency = (amount: number, currencyCode?: string): string => {
   const symbol = getCurrencySymbol(currencyCode || DEFAULT_CURRENCY);
-  return `${symbol}${amount.toFixed(2)}`;
+  // Format number with thousand separators and 2 decimal places
+  const formattedAmount = amount.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+  return `${symbol}${formattedAmount}`;
 };
 
 export const getCurrencyCode = (currencyCode?: string): string => {

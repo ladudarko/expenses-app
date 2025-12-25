@@ -79,7 +79,8 @@ export const pool = {
               username: values[0] || '',
               password_hash: values[1] || '',
               business_name: values[2] || 'BigSix AutoSales LLC',
-              is_admin: values[3] || false,
+              address: values[3] || null,
+              is_admin: values[4] || false,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
             };
@@ -110,7 +111,8 @@ export const pool = {
               amount: values[5] || 0,
               currency: values[6] || 'USD',
               expense_type: values[7] || 'Business',
-              project_name: values[8] || null,
+              transaction_type: values[8] || 'Expense',
+              project_name: values[9] || null,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
             };

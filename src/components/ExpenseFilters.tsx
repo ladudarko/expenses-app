@@ -10,6 +10,7 @@ export interface FilterOptions {
   vendor: string;
   description: string;
   expenseType: string;
+  transactionType: string;
   projectName: string;
 }
 
@@ -38,12 +39,13 @@ export default function ExpenseFilters({ filters, onFiltersChange, onClear }: Ex
     filters.vendor ||
     filters.description ||
     filters.expenseType ||
+    filters.transactionType ||
     filters.projectName;
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">Filter Expenses</h3>
+        <h3 className="text-lg font-semibold text-gray-800">Filter Transactions</h3>
         <div className="flex gap-2">
           {hasActiveFilters && (
             <button
@@ -64,6 +66,22 @@ export default function ExpenseFilters({ filters, onFiltersChange, onClear }: Ex
 
       {isExpanded && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Transaction Type Filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Transaction Type
+            </label>
+            <select
+              value={filters.transactionType}
+              onChange={(e) => handleChange('transactionType', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            >
+              <option value="">All Transactions</option>
+              <option value="Income">Income</option>
+              <option value="Expense">Expense</option>
+            </select>
+          </div>
+
           {/* Expense Type Filter */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -170,13 +188,13 @@ export default function ExpenseFilters({ filters, onFiltersChange, onClear }: Ex
           {/* Vendor Filter */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Vendor
+              Vendor/Customer
             </label>
             <input
               type="text"
               value={filters.vendor}
               onChange={(e) => handleChange('vendor', e.target.value)}
-              placeholder="Search vendor..."
+              placeholder="Search vendor/customer..."
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
           </div>
@@ -226,12 +244,17 @@ export default function ExpenseFilters({ filters, onFiltersChange, onClear }: Ex
           )}
           {filters.vendor && (
             <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">
-              Vendor: {filters.vendor}
+              Vendor/Customer: {filters.vendor}
             </span>
           )}
           {filters.description && (
             <span className="px-2 py-1 bg-pink-100 text-pink-800 text-xs rounded">
               Description: {filters.description}
+            </span>
+          )}
+          {filters.transactionType && (
+            <span className="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded">
+              Transaction: {filters.transactionType}
             </span>
           )}
           {filters.expenseType && (

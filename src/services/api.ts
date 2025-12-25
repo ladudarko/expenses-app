@@ -35,10 +35,10 @@ class ApiService {
   }
 
   // Auth methods
-  async register(username: string, password: string, businessName?: string) {
+  async register(username: string, password: string, businessName?: string, address?: string) {
     return this.request<{ token: string; user: any }>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ username, password, business_name: businessName }),
+      body: JSON.stringify({ username, password, business_name: businessName, address }),
     });
   }
 

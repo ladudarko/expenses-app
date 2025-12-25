@@ -10,7 +10,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_i
 // Register new user
 router.post('/register', async (req: Request, res: Response) => {
   try {
-    const { username, password, business_name } = req.body;
+    const { username, password, business_name, address } = req.body;
 
     const normalizedUsername = typeof username === 'string' ? username.trim() : '';
 
@@ -30,8 +30,8 @@ router.post('/register', async (req: Request, res: Response) => {
 
     // Create user
     const result = await pool.query(
-      'INSERT INTO users (username, password_hash, business_name, is_admin) VALUES ($1, $2, $3, $4) RETURNING id, username, business_name, is_admin',
-      [normalizedUsername, password_hash, business_name || 'BigSix AutoSales LLC', false]
+      'INSERT INTO users (username, password_hash, business_name, address, is_admin) VALUES ($1, $2, $3, $4, $5) RETURNING id, username, business_name, address, is_admin',
+      [normalizedUsername, password_hash, business_name || 'BigSix AutoSales LLC', address || null, false]
     );
 
     const user: User = result.rows[0];
@@ -45,7 +45,8 @@ router.post('/register', async (req: Request, res: Response) => {
       user: {
         id: user.id,
         username: user.username,
-        business_name: user.business_name
+        business_name: user.business_name,
+        address: user.address
       }
     });
   } catch (error) {
@@ -90,6 +91,7 @@ router.post('/login', async (req: Request, res: Response) => {
           id: user.id,
           username: user.username,
           business_name: user.business_name,
+          address: user.address,
           is_admin: user.is_admin
         }
       });
@@ -112,7 +114,7 @@ router.get('/me', async (req: Request, res: Response) => {
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
     
       const result = await pool.query(
-        'SELECT id, username, business_name, is_admin, created_at FROM users WHERE id = $1',
+        'SELECT id, username, business_name, address, is_admin, created_at FROM users WHERE id = $1',
         [decoded.userId]
       );
 

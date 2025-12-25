@@ -55,15 +55,15 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
 router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
-      const { date, category, description, vendor, amount, currency, expense_type, project_name }: Expense = req.body;
+      const { date, category, description, vendor, amount, currency, expense_type, transaction_type, project_name }: Expense = req.body;
 
-      if (!date || !category || !description || !amount) {
+      if (!date || !category || !amount) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
 
       const result = await pool.query(
-        'INSERT INTO expenses (user_id, date, category, description, vendor, amount, currency, expense_type, project_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
-        [userId, date, category, description, vendor || null, amount, currency || 'USD', expense_type || 'Business', project_name || null]
+        'INSERT INTO expenses (user_id, date, category, description, vendor, amount, currency, expense_type, transaction_type, project_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
+        [userId, date, category, description, vendor || null, amount, currency || 'USD', expense_type || 'Business', transaction_type || 'Expense', project_name || null]
       );
 
     res.status(201).json(result.rows[0]);
@@ -78,7 +78,7 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
   try {
     const userId = req.userId;
     const { id } = req.params;
-      const { date, category, description, vendor, amount, currency, expense_type, project_name }: Expense = req.body;
+      const { date, category, description, vendor, amount, currency, expense_type, transaction_type, project_name }: Expense = req.body;
 
       // Check if expense exists and belongs to user
       const checkResult = await pool.query(
@@ -91,8 +91,8 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
       }
 
       const result = await pool.query(
-        'UPDATE expenses SET date = $1, category = $2, description = $3, vendor = $4, amount = $5, currency = $6, expense_type = $7, project_name = $8 WHERE id = $9 AND user_id = $10 RETURNING *',
-        [date, category, description, vendor || null, amount, currency || 'USD', expense_type || 'Business', project_name || null, id, userId]
+        'UPDATE expenses SET date = $1, category = $2, description = $3, vendor = $4, amount = $5, currency = $6, expense_type = $7, transaction_type = $8, project_name = $9 WHERE id = $10 AND user_id = $11 RETURNING *',
+        [date, category, description, vendor || null, amount, currency || 'USD', expense_type || 'Business', transaction_type || 'Expense', project_name || null, id, userId]
       );
 
     res.json(result.rows[0]);

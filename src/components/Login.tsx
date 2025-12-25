@@ -10,6 +10,7 @@ export default function Login({ onLogin }: LoginProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [businessName, setBusinessName] = useState('BigSix AutoSales LLC');
+  const [address, setAddress] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -31,7 +32,7 @@ export default function Login({ onLogin }: LoginProps) {
       if (isLogin) {
         result = await api.login(trimmedUsername, password);
       } else {
-        result = await api.register(trimmedUsername, password, businessName);
+        result = await api.register(trimmedUsername, password, businessName, address);
       }
 
       localStorage.setItem('auth_token', result.token);
@@ -90,19 +91,36 @@ export default function Login({ onLogin }: LoginProps) {
           )}
 
           {!isLogin && (
-            <div>
-              <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
-                Business Name
-              </label>
-              <input
-                type="text"
-                id="businessName"
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required={!isLogin}
-              />
-            </div>
+            <>
+              <div>
+                <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Business Name
+                </label>
+                <input
+                  type="text"
+                  id="businessName"
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required={!isLogin}
+                />
+              </div>
+              <div>
+                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                  Business Address
+                </label>
+                <textarea
+                  id="address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows={3}
+                  placeholder="e.g., 123 Business Street&#10;City, State ZIP"
+                  required={!isLogin}
+                />
+                <p className="mt-1 text-xs text-gray-500">This address will be used on invoices</p>
+              </div>
+            </>
           )}
 
           <div>

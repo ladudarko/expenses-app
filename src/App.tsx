@@ -23,6 +23,7 @@ function App() {
     vendor: '',
     description: '',
     expenseType: '',
+    transactionType: '',
     projectName: ''
   });
   const [loading, setLoading] = useState(false);
@@ -113,6 +114,7 @@ function App() {
       if (filters.vendor && expense.vendor && !expense.vendor.toLowerCase().includes(filters.vendor.toLowerCase())) return false;
       if (filters.description && !expense.description.toLowerCase().includes(filters.description.toLowerCase())) return false;
       if (filters.expenseType && expense.expense_type !== filters.expenseType) return false;
+      if (filters.transactionType && (expense.transaction_type || 'Expense') !== filters.transactionType) return false;
       if (filters.projectName) {
         if (!expense.project_name) return false;
         if (!expense.project_name.toLowerCase().includes(filters.projectName.toLowerCase())) return false;
@@ -132,6 +134,7 @@ function App() {
       vendor: '',
       description: '',
       expenseType: '',
+      transactionType: '',
       projectName: ''
     });
   };
@@ -235,6 +238,9 @@ function App() {
                 expenses={expenses} 
                 onDelete={handleDeleteExpense}
                 filters={filters}
+                businessName={user?.business_name}
+                address={user?.address}
+                username={user?.username}
               />
             </div>
           </div>

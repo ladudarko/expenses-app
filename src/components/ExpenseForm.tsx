@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Expense, EXPENSE_CATEGORIES, CURRENCIES, DEFAULT_CURRENCY } from '../types';
+import { Expense, EXPENSE_CATEGORIES, INCOME_CATEGORIES, CURRENCIES, DEFAULT_CURRENCY } from '../types';
 
 interface ExpenseFormProps {
   onSubmit: (expense: Expense) => Promise<void>;
@@ -8,6 +8,7 @@ interface ExpenseFormProps {
 
 export default function ExpenseForm({ onSubmit, existingProjects = [] }: ExpenseFormProps) {
   const [date, setDate] = useState('');
+  const [transactionType, setTransactionType] = useState<'Expense' | 'Income'>('Expense');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [vendor, setVendor] = useState('');
@@ -31,10 +32,15 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
     }
   }, [projectName, existingProjects]);
 
+  // Reset category when transaction type changes
+  useEffect(() => {
+    setCategory('');
+  }, [transactionType]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!date || !category || !description || !amount) {
+    if (!date || !category || !amount) {
       alert('Please fill in all required fields');
       return;
     }
@@ -54,12 +60,14 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
         amount: parseFloat(amount),
         currency: currency || DEFAULT_CURRENCY,
         expense_type: expenseType,
+        transaction_type: transactionType,
         project_name: projectName.trim() || undefined,
       };
 
       await onSubmit(expense as Expense);
       // Reset form only after successful submission
       setDate('');
+      setTransactionType('Expense');
       setCategory('');
       setDescription('');
       setVendor('');
@@ -77,7 +85,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">Add New Expense</h2>
+      <h2 className="text-2xl font-bold mb-4 text-gray-800">Add new Item</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -92,6 +100,22 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           />
+        </div>
+
+        <div>
+          <label htmlFor="transactionType" className="block text-sm font-medium text-gray-700 mb-1">
+            Transaction Type *
+          </label>
+          <select
+            id="transactionType"
+            value={transactionType}
+            onChange={(e) => setTransactionType(e.target.value as 'Expense' | 'Income')}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            required
+          >
+            <option value="Expense">Expense</option>
+            <option value="Income">Income</option>
+          </select>
         </div>
 
         <div>
@@ -122,7 +146,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
             required
           >
             <option value="">Select a category</option>
-            {EXPENSE_CATEGORIES.map(cat => (
+            {(transactionType === 'Income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map(cat => (
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
@@ -171,7 +195,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
           )}
         </div>
 
-        <div>
+        <div className="md:col-span-2">
           <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
             Amount *
           </label>
@@ -183,18 +207,31 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
                 step="0.01"
                 min="0"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Only allow numbers and decimal point
+                  if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                    setAmount(value);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  // Prevent non-numeric characters except decimal point, backspace, delete, arrow keys
+                  if (!/[0-9.]/.test(e.key) && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab'].includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
+                inputMode="decimal"
+                className="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="0.00"
                 required
               />
             </div>
-            <div className="w-32">
+            <div className="w-40">
               <select
                 id="currency"
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 {CURRENCIES.map((curr) => (
                   <option key={curr.code} value={curr.code}>
@@ -208,7 +245,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
 
         <div>
           <label htmlFor="vendor" className="block text-sm font-medium text-gray-700 mb-1">
-            Vendor
+            Vendor/Customer
           </label>
           <input
             type="text"
@@ -222,7 +259,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
 
         <div className="md:col-span-2">
           <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-            Description *
+            Description
           </label>
           <input
             type="text"
@@ -230,8 +267,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Brief description of the expense"
-            required
+            placeholder="Brief description (optional)"
           />
         </div>
       </div>
@@ -241,7 +277,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
         disabled={isSubmitting}
         className="w-full mt-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
       >
-        {isSubmitting ? 'Adding...' : 'Add Expense'}
+        {isSubmitting ? 'Adding...' : 'Add Item'}
       </button>
     </form>
   );

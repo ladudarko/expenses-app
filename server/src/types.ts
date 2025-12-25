@@ -8,6 +8,7 @@ export interface Expense {
   amount: number;
   currency?: string;
   expense_type?: 'Personal' | 'Business';
+  transaction_type?: 'Expense' | 'Income';
   project_name?: string;
   created_at?: string;
   updated_at?: string;
@@ -18,6 +19,7 @@ export interface User {
   username: string;
   password_hash?: string;
   business_name?: string;
+  address?: string;
   is_admin?: boolean;
   created_at?: string;
   updated_at?: string;
@@ -32,10 +34,19 @@ export const EXPENSE_CATEGORIES = [
   'Licensing & Registration',
   'Office Supplies',
   'Marketing & Advertising',
-  'Professional Services',
+  'Labor',
   'Utilities',
   'Rent',
   'Software & Subscriptions',
   'Other'
+] as const;
+
+export const INCOME_CATEGORIES = [
+  'Vehicle Sale',
+  'Service Revenue',
+  'Parts Sales',
+  'Labor',
+  'Consulting',
+  'Other Income'
 ] as const;
 
