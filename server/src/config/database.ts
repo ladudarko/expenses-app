@@ -191,22 +191,50 @@ export const pool = {
       // DELETE queries
       if (sql.startsWith('DELETE')) {
         const tableMatch = text.match(/FROM\s+(\w+)/i);
-        const whereMatch = text.match(/WHERE\s+(.+)/i);
+        const whereMatch = text.match(/WHERE\s+(.+?)(?:\s+RETURNING|$)/i);
         
         if (tableMatch && whereMatch && params) {
           const table = tableMatch[1].toLowerCase();
-          const colMatch = whereMatch[1].match(/(\w+)\s*=\s*\?/);
+          const whereClause = whereMatch[1];
           
-          if (colMatch) {
-            const col = colMatch[1];
-            const id = params[0];
-            const index = (db as any)[table].findIndex((row: any) => row[col] === id && (!params[1] || row.user_id === params[1]));
+          // Handle multiple conditions like "id = $1 AND user_id = $2"
+          const conditions = whereClause.split(/\s+AND\s+/i);
+          
+          const index = (db as any)[table].findIndex((row: any) => {
+            let paramIndex = 0;
+            return conditions.every(condition => {
+              // Handle both PostgreSQL ($1) and SQLite (?) parameter styles
+              const colMatch = condition.match(/(\w+)\s*=\s*(\?|\$\d+)/);
+              if (colMatch && paramIndex < params.length) {
+                const col = colMatch[1];
+                const matches = row[col] == params[paramIndex]; // Use == for type coercion (string/number)
+                paramIndex++;
+                return matches;
+              }
+              return true;
+            });
+          });
+          
+          if (index !== -1) {
+            const deletedRow = (db as any)[table][index];
+            (db as any)[table].splice(index, 1);
+            saveDatabase();
             
-            if (index !== -1) {
-              (db as any)[table].splice(index, 1);
-              saveDatabase();
-              return { rows: [{ id }] };
+            // Handle RETURNING clause
+            const returningMatch = text.match(/RETURNING\s+(.+)/i);
+            if (returningMatch) {
+              const returningClause = returningMatch[1].trim();
+              if (returningClause === '*') {
+                return { rows: [deletedRow] };
+              }
+              const returningCols = returningClause.split(',').map(c => c.trim());
+              const result: any = {};
+              returningCols.forEach(col => {
+                result[col] = deletedRow[col];
+              });
+              return { rows: [result] };
             }
+            return { rows: [{ id: deletedRow.id }] };
           }
         }
       }
