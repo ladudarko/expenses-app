@@ -41,6 +41,11 @@ jobs:
         # Copy package.json and package-lock.json (required for npm ci)
         cp server/package.json build/
         cp server/package-lock.json build/
+        # Copy scripts directory for password reset utility
+        if [ -d "server/scripts" ]; then
+          mkdir -p build/scripts
+          cp -r server/scripts/* build/scripts/
+        fi
         # Create empty data directory for JSON database
         mkdir -p build/data
         # Initialize empty database if data directory doesn't exist in source
