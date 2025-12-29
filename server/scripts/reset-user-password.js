@@ -1,10 +1,37 @@
-import bcrypt from 'bcrypt';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// In production: script is in site/wwwroot/scripts/, node_modules is in site/wwwroot/
+// In development: script is in server/scripts/, node_modules is in server/
+// Try different paths to find node_modules
+const pathsToTry = [
+  path.join(__dirname, '../../node_modules'),  // Production: scripts/../../node_modules = node_modules
+  path.join(__dirname, '../node_modules'),     // Development: scripts/../node_modules = server/node_modules
+  path.join(__dirname, '../../../node_modules'), // Alternative production path
+];
+
+let nodeModulesPath = null;
+for (const tryPath of pathsToTry) {
+  if (existsSync(tryPath) && existsSync(path.join(tryPath, 'bcrypt'))) {
+    nodeModulesPath = tryPath;
+    break;
+  }
+}
+
+if (!nodeModulesPath) {
+  console.error('❌ Error: Could not find node_modules with bcrypt');
+  console.error('Tried paths:', pathsToTry);
+  process.exit(1);
+}
+
+// Use createRequire to import bcrypt from the correct node_modules location
+const require = createRequire(import.meta.url);
+const bcrypt = require(path.join(nodeModulesPath, 'bcrypt'));
 
 // In production, the script is in dist/scripts/, so data is at dist/../../data/db.json = data/db.json
 // In development, it's at ../data/db.json
