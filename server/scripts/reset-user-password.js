@@ -10,14 +10,16 @@ const __dirname = path.dirname(__filename);
 // In development: script is in server/scripts/, node_modules is in server/
 // Try different paths to find node_modules
 const pathsToTry = [
-  path.join(__dirname, '../../node_modules'),  // Production: scripts/../../node_modules = node_modules
-  path.join(__dirname, '../node_modules'),     // Development: scripts/../node_modules = server/node_modules
-  path.join(__dirname, '../../../node_modules'), // Alternative production path
+  path.join(__dirname, '../node_modules'),     // Production: scripts/../node_modules = wwwroot/node_modules
+  path.join(__dirname, '../../node_modules'),  // Alternative: scripts/../../node_modules
+  path.join(process.cwd(), 'node_modules'),    // Current working directory (when run from wwwroot)
+  path.resolve('/home/site/wwwroot/node_modules'), // Absolute path for production
 ];
 
 let nodeModulesPath = null;
 for (const tryPath of pathsToTry) {
-  if (existsSync(tryPath) && existsSync(path.join(tryPath, 'bcrypt'))) {
+  const bcryptPath = path.join(tryPath, 'bcrypt');
+  if (existsSync(tryPath) && existsSync(bcryptPath)) {
     nodeModulesPath = tryPath;
     break;
   }
@@ -25,8 +27,25 @@ for (const tryPath of pathsToTry) {
 
 if (!nodeModulesPath) {
   console.error('❌ Error: Could not find node_modules with bcrypt');
+  console.error('Current directory:', process.cwd());
+  console.error('Script directory:', __dirname);
   console.error('Tried paths:', pathsToTry);
-  process.exit(1);
+  console.error('\nTrying to find node_modules...');
+  // Try to find node_modules by walking up the directory tree
+  let currentDir = __dirname;
+  for (let i = 0; i < 5; i++) {
+    const tryPath = path.join(currentDir, 'node_modules');
+    if (existsSync(tryPath) && existsSync(path.join(tryPath, 'bcrypt'))) {
+      nodeModulesPath = tryPath;
+      console.error(`Found at: ${nodeModulesPath}`);
+      break;
+    }
+    currentDir = path.dirname(currentDir);
+  }
+  if (!nodeModulesPath) {
+    console.error('Please run from /home/site/wwwroot directory');
+    process.exit(1);
+  }
 }
 
 // Use createRequire to import bcrypt from the correct node_modules location
