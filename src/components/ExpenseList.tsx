@@ -177,30 +177,30 @@ export default function ExpenseList({ expenses, onDelete, filters, businessName,
 
   if (expenses.length === 0) {
     return (
-      <div className="bg-white p-8 rounded-lg shadow-md text-center">
-        <p className="text-gray-500 text-lg">No transactions recorded yet. Add your first item above!</p>
+      <div className="bg-gray-900 p-8 rounded-lg shadow-md text-center border border-gray-700">
+        <p className="text-gray-400 text-lg">No transactions recorded yet. Add your first item above!</p>
       </div>
     );
   }
 
   if (filteredExpenses.length === 0) {
     return (
-      <div className="bg-white p-8 rounded-lg shadow-md text-center">
-        <p className="text-gray-500 text-lg">No transactions match your filters. Try adjusting your filter criteria.</p>
+      <div className="bg-gray-900 p-8 rounded-lg shadow-md text-center border border-gray-700">
+        <p className="text-gray-400 text-lg">No transactions match your filters. Try adjusting your filter criteria.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+    <div className="bg-gray-900 rounded-lg shadow-md overflow-hidden border border-gray-700">
+      <div className="px-6 py-4 bg-gray-800 border-b border-gray-700">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-2xl font-bold text-white">
             Transactions {filteredExpenses.length !== expenses.length && `(${filteredExpenses.length} of ${expenses.length})`}
           </h2>
           <div className="flex flex-col items-end">
             {Object.entries(totalsByCurrency).map(([currency, total]) => (
-              <span key={currency} className="text-lg font-semibold text-gray-700">
+              <span key={currency} className="text-lg font-semibold text-white">
                 {currency} Total: {formatCurrency(total, currency)}
               </span>
             ))}
@@ -210,10 +210,10 @@ export default function ExpenseList({ expenses, onDelete, filters, businessName,
       
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-100">
+          <thead className="bg-gray-800">
             <tr>
               <th 
-                className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-700 transition-colors"
                 onClick={() => handleSort('date')}
               >
                 <div className="flex items-center">
@@ -221,10 +221,10 @@ export default function ExpenseList({ expenses, onDelete, filters, businessName,
                   <SortIcon column="date" />
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 Type
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 Transaction
               </th>
               <th 
@@ -254,10 +254,10 @@ export default function ExpenseList({ expenses, onDelete, filters, businessName,
                   <SortIcon column="vendor" />
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 Project
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 Currency
               </th>
               <th 
@@ -274,22 +274,22 @@ export default function ExpenseList({ expenses, onDelete, filters, businessName,
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-gray-900 divide-y divide-gray-700">
             {sortedExpenses.map((expense) => {
               const expenseTypeValue = expense.expense_type || 'Business';
               const transactionTypeValue = expense.transaction_type || 'Expense';
               const projectNameValue = expense.project_name || '-';
 
               return (
-              <tr key={expense.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <tr key={expense.id} className="hover:bg-gray-800">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                   {format(new Date(expense.date), 'MM/dd/yyyy')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                     expenseTypeValue === 'Business' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-purple-100 text-purple-800'
+                      ? 'bg-green-600 text-white' 
+                      : 'bg-purple-600 text-white'
                   }`}>
                     {expenseTypeValue}
                   </span>
@@ -297,32 +297,32 @@ export default function ExpenseList({ expenses, onDelete, filters, businessName,
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                     transactionTypeValue === 'Income' 
-                      ? 'bg-emerald-100 text-emerald-800' 
-                      : 'bg-orange-100 text-orange-800'
+                      ? 'bg-emerald-600 text-white' 
+                      : 'bg-orange-600 text-white'
                   }`}>
                     {transactionTypeValue}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                  <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-600 text-white">
                     {expense.category}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-900">
-                  {expense.description}
+                <td className="px-6 py-4 text-sm text-white">
+                  {expense.description || 'No description'}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                   {expense.vendor || '-'}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                   {projectNameValue}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                  <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                  <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-600 text-white">
                     {getCurrencyCode(expense.currency)}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                   {formatCurrency(expense.amount, expense.currency)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

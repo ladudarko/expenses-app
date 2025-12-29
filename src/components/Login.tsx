@@ -45,13 +45,13 @@ export default function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+    <div className="min-h-screen bg-black flex items-center justify-center px-4">
+      <div className="bg-gray-900 p-8 rounded-lg shadow-lg max-w-md w-full border border-gray-700">
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold text-white mb-2">
             BigSix AutoSales LLC
           </h1>
-          <p className="text-gray-600">Business Expense Tracker</p>
+          <p className="text-gray-300">Business Expense Tracker</p>
         </div>
 
         <div className="flex gap-4 mb-6 border-b">
@@ -62,8 +62,8 @@ export default function Login({ onLogin }: LoginProps) {
             }}
             className={`flex-1 py-2 font-semibold transition ${
               isLogin
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500'
+                ? 'text-blue-400 border-b-2 border-blue-400'
+                : 'text-gray-400'
             }`}
           >
             Login
@@ -75,8 +75,8 @@ export default function Login({ onLogin }: LoginProps) {
             }}
             className={`flex-1 py-2 font-semibold transition ${
               !isLogin
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500'
+                ? 'text-blue-400 border-b-2 border-blue-400'
+                : 'text-gray-400'
             }`}
           >
             Sign Up
@@ -85,7 +85,7 @@ export default function Login({ onLogin }: LoginProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <div className="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded">
               {error}
             </div>
           )}
@@ -93,7 +93,7 @@ export default function Login({ onLogin }: LoginProps) {
           {!isLogin && (
             <>
               <div>
-                <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="businessName" className="block text-sm font-medium text-gray-300 mb-1">
                   Business Name
                 </label>
                 <input
@@ -101,30 +101,30 @@ export default function Login({ onLogin }: LoginProps) {
                   id="businessName"
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required={!isLogin}
                 />
               </div>
               <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="address" className="block text-sm font-medium text-gray-300 mb-1">
                   Business Address
                 </label>
                 <textarea
                   id="address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows={3}
                   placeholder="e.g., 123 Business Street&#10;City, State ZIP"
                   required={!isLogin}
                 />
-                <p className="mt-1 text-xs text-gray-500">This address will be used on invoices</p>
+                <p className="mt-1 text-xs text-gray-400">This address will be used on invoices</p>
               </div>
             </>
           )}
 
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1">
               Username
             </label>
             <input
@@ -132,7 +132,7 @@ export default function Login({ onLogin }: LoginProps) {
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="e.g., ladudarko"
               required
               minLength={3}
@@ -140,7 +140,7 @@ export default function Login({ onLogin }: LoginProps) {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
               Password
             </label>
             <input
@@ -148,7 +148,7 @@ export default function Login({ onLogin }: LoginProps) {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
               minLength={6}
             />

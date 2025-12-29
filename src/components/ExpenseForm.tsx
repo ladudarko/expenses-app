@@ -84,12 +84,12 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">Add new Item</h2>
+    <form onSubmit={handleSubmit} className="bg-gray-900 p-6 rounded-lg shadow-md border border-gray-700">
+      <h2 className="text-2xl font-bold mb-4 text-white">Add new Item</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="date" className="block text-sm font-medium text-gray-300 mb-1">
             Date *
           </label>
           <input
@@ -97,7 +97,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
             id="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           />
         </div>
@@ -110,7 +110,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
             id="transactionType"
             value={transactionType}
             onChange={(e) => setTransactionType(e.target.value as 'Expense' | 'Income')}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           >
             <option value="Expense">Expense</option>
@@ -126,7 +126,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
             id="expenseType"
             value={expenseType}
             onChange={(e) => setExpenseType(e.target.value as 'Personal' | 'Business')}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           >
             <option value="Business">Business</option>
@@ -142,7 +142,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           >
             <option value="">Select a category</option>
@@ -164,12 +164,12 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
               onChange={(e) => setProjectName(e.target.value)}
               onFocus={() => projectName && setShowProjectSuggestions(true)}
               onBlur={() => setTimeout(() => setShowProjectSuggestions(false), 200)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="e.g., 2023 Ford F150 Truck Repair"
               list="project-suggestions"
             />
             {showProjectSuggestions && filteredProjects.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-auto">
+              <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg max-h-40 overflow-auto">
                 {filteredProjects.map((project) => (
                   <button
                     key={project}
@@ -178,7 +178,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
                       setProjectName(project);
                       setShowProjectSuggestions(false);
                     }}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-blue-50 focus:bg-blue-50 focus:outline-none"
+                    className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 focus:bg-gray-700 focus:outline-none"
                   >
                     {project}
                   </button>
@@ -186,9 +186,9 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
               </div>
             )}
           </div>
-          <p className="mt-1 text-xs text-gray-500">Group related expenses together (optional)</p>
+          <p className="mt-1 text-xs text-gray-400">Group related expenses together (optional)</p>
           {existingProjects.length > 0 && (
-            <p className="mt-1 text-xs text-blue-600">
+            <p className="mt-1 text-xs text-blue-400">
               Existing projects: {existingProjects.slice(0, 5).join(', ')}
               {existingProjects.length > 5 && ` +${existingProjects.length - 5} more`}
             </p>
@@ -221,7 +221,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
                   }
                 }}
                 inputMode="decimal"
-                className="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-lg border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="0.00"
                 required
               />
@@ -231,7 +231,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
                 id="currency"
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-lg border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 {CURRENCIES.map((curr) => (
                   <option key={curr.code} value={curr.code}>
@@ -252,7 +252,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
             id="vendor"
             value={vendor}
             onChange={(e) => setVendor(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Optional"
           />
         </div>
@@ -266,7 +266,7 @@ export default function ExpenseForm({ onSubmit, existingProjects = [] }: Expense
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Brief description (optional)"
           />
         </div>

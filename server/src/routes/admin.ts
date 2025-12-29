@@ -114,4 +114,31 @@ router.post('/users/:id/make-admin', requireAdmin, async (req: AdminRequest, res
   }
 });
 
+// Delete user (admin only)
+router.delete('/users/:id', requireAdmin, async (req: AdminRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const adminUserId = req.userId;
+    
+    // Prevent admin from deleting themselves
+    if (Number(id) === adminUserId) {
+      return res.status(400).json({ error: 'Cannot delete your own account' });
+    }
+    
+    // Check if user exists
+    const userCheck = await pool.query('SELECT id, is_admin FROM users WHERE id = $1', [id]);
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Delete user (cascade will delete expenses)
+    const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING id, username', [id]);
+
+    res.json({ message: 'User deleted successfully', user: result.rows[0] });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

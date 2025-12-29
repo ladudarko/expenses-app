@@ -61,6 +61,13 @@ class AdminApiService {
       method: 'POST',
     });
   }
+
+  // Delete user (admin only)
+  async deleteUser(userId: number) {
+    return this.request(`/admin/users/${userId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const adminApi = new AdminApiService();

@@ -163,19 +163,19 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-gray-900 mb-2">
+          <h1 className="text-5xl font-bold text-white mb-2">
             {user?.business_name || 'BigSix AutoSales LLC'}
           </h1>
-          <p className="text-xl text-gray-600">Business Expense Tracker</p>
+          <p className="text-xl text-gray-300">Business Expense Tracker</p>
             <div className="mt-4">
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-300">
                 {user?.username}
                 {user?.is_admin && (
-                  <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded-full">
+                  <span className="ml-2 px-2 py-1 bg-purple-600 text-white text-xs font-semibold rounded-full">
                     Admin
                   </span>
                 )}
@@ -247,7 +247,7 @@ function App() {
         )}
 
         {/* Footer */}
-        <div className="mt-8 text-center text-gray-600 text-sm">
+        <div className="mt-8 text-center text-gray-400 text-sm">
           <p>© {new Date().getFullYear()} BigSix AutoSales LLC. All rights reserved.</p>
         </div>
       </div>
