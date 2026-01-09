@@ -47,11 +47,11 @@ jobs:
           cp -r server/scripts/* build/scripts/
         fi
         # Create empty data directory for JSON database
+        # DO NOT copy db.json from repo - production database should persist on Azure
         mkdir -p build/data
-        # Initialize empty database if data directory doesn't exist in source
-        if [ -d "server/data" ]; then
-          cp -r server/data/* build/data/ 2>/dev/null || true
-        else
+        # Only create empty db.json if it doesn't exist (first deployment)
+        # Production database will persist on Azure's file system between deployments
+        if [ ! -f "build/data/db.json" ]; then
           echo '{"users": [], "expenses": []}' > build/data/db.json
         fi
         # Install production dependencies only
