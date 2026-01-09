@@ -14,7 +14,9 @@ export default function SummaryCard({ expenses }: SummaryCardProps) {
 
   const filteredExpenses = useMemo(() => {
     if (viewMode === 'All') return expenses;
-    return expenses.filter(exp => (exp.transaction_type || 'Expense') === viewMode);
+    // Map viewMode to transaction_type: 'Expenses' -> 'Expense', 'Income' -> 'Income'
+    const targetType = viewMode === 'Expenses' ? 'Expense' : viewMode;
+    return expenses.filter(exp => (exp.transaction_type || 'Expense') === targetType);
   }, [expenses, viewMode]);
 
   const summary = generateSummary(filteredExpenses);
